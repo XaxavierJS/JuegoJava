@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import java.util.ArrayList;
 
 
 public class Nave4 {
@@ -26,6 +27,8 @@ public class Nave4 {
     private int direccion = 0;
     private float velocidadConstante = 5;
     
+    private boolean tripleShotEnabled = false;
+    
     public Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala) {
     	sonidoHerido = soundChoque;
     	this.soundBala = soundBala;
@@ -36,6 +39,30 @@ public class Nave4 {
     	spr.setBounds(x, y, 45, 45);
 
     }
+    
+    public void enableTripleShot() {
+        this.tripleShotEnabled = true;
+        System.out.println("¡Triple disparo activado!");
+    }
+    
+    public void shoot(ArrayList<Bullet> bullets) {
+        if (tripleShotEnabled) {
+            // Misil central: va directamente hacia arriba
+            bullets.add(new Bullet(spr.getX(), spr.getY(), 0, 3, txBala));
+            
+            // Misil izquierdo: va hacia arriba y un poco hacia la izquierda
+            bullets.add(new Bullet(spr.getX(), spr.getY(), -3, 3, txBala));
+            
+            // Misil derecho: va hacia arriba y un poco hacia la derecha
+            bullets.add(new Bullet(spr.getX(), spr.getY(), 3, 3, txBala));
+        } else {
+            // Disparo único en línea recta hacia arriba
+            bullets.add(new Bullet(spr.getX(), spr.getY(), 0, 5, txBala));
+        }
+    }
+
+
+    
     public void draw(SpriteBatch batch, PantallaJuego juego) {
         float x = spr.getX();
         float y = spr.getY();
@@ -137,6 +164,10 @@ public class Nave4 {
             return true;
         }
         return false;
+    }
+    	
+    public void disableTripleShot() {
+        this.tripleShotEnabled = false;
     }
     
     public Rectangle getBounds() {

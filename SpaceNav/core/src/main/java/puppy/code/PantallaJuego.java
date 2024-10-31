@@ -103,6 +103,22 @@ public class PantallaJuego implements Screen {
 		game.getFont().draw(batch, "Score:"+this.score, Gdx.graphics.getWidth()-150, 30);
 		game.getFont().draw(batch, "HighScore:"+game.getHighScore(), Gdx.graphics.getWidth()/2-100, 30);
 	}
+	
+	public void destruirAsteroides() {
+	    balls1.clear(); // Elimina todos los asteroides
+	    balls2.clear(); // También limpia la lista balls2 si es necesario
+	    avanzarARondaSiguiente(); // Llama al método que avanza a la siguiente ronda
+	}
+
+	private void avanzarARondaSiguiente() {
+	    nave.disableTripleShot(); // Desactiva el disparo triple si está habilitado
+	    Screen ss = new PantallaJuego(game, ronda + 1, nave.getVidas(), score,
+	            velXAsteroides + 3, velYAsteroides + 3, cantAsteroides + 10);
+	    ss.resize(1200, 800);
+	    game.setScreen(ss);
+	    dispose();
+	}
+	
 	@Override
 	public void render(float delta) {
 		  Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -113,11 +129,15 @@ public class PantallaJuego implements Screen {
 		  powerUpSpawnTimer -= delta;
 	        if (powerUpSpawnTimer <= 0) {
 	            Random r1 = new Random();
-	            // Generar un nuevo PowerUp con una probabilidad del 80%
-	            if (r1.nextFloat() < 0.8f) {
-	                powerUps.add(new RedStar(r1.nextInt(Gdx.graphics.getWidth()), 
-	                                          r1.nextInt(Gdx.graphics.getHeight())));
+	            
+	            if (r1.nextFloat() < 0.5f) {  
+	                powerUps.add(new MagicStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
+	            } else if (r1.nextFloat() < 0.8f) { // Probabilidad del 80% para RedStar
+	                powerUps.add(new RedStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
+	            } else if (r1.nextFloat() < 0.5f) { // Probabilidad del 50% para BlueStar
+	                powerUps.add(new BlueStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
 	            }
+	            
 	            // Reiniciar el temporizador
 	            powerUpSpawnTimer = powerUpSpawnInterval;
 	        }
@@ -137,7 +157,7 @@ public class PantallaJuego implements Screen {
 		              }   	  
 		  	        }
 		                
-		         //   b.draw(batch);
+		            b.draw(batch);
 		            if (b.isDestroyed()) {
 		                balas.remove(b);
 		                i--; //para no saltarse 1 tras eliminar del arraylist
@@ -160,7 +180,8 @@ public class PantallaJuego implements Screen {
 		      } 
 	      }
 	      //dibujar balas
-	     for (Bullet b : balas) {       
+	     for (Bullet b : balas) {     
+	    	 b.update();
 	          b.draw(batch);
 	      }
 	      nave.draw(batch, this);
@@ -189,7 +210,8 @@ public class PantallaJuego implements Screen {
 	      for (PowerUp powerUp : powerUps) {
 	    	    powerUp.draw(batch);
 	    	    if (powerUp.checkCollision(nave)) {
-	    	        powerUp.applyEffect(this);
+	    	        System.out.println("¡PowerUp recogido!"); // Confirma la recogida del PowerUp
+	    	        powerUp.applyEffect(this); // Aplica el efecto correspondiente
 	    	        powerUps.remove(powerUp);
 	    	        break;
 	    	    }
@@ -206,6 +228,7 @@ public class PantallaJuego implements Screen {
 	      //nivel completado
 	      
 	      if (balls1.size()==0) {
+	    	  nave.disableTripleShot();
 			Screen ss = new PantallaJuego(game,ronda+1, nave.getVidas(), score, 
 					velXAsteroides+3, velYAsteroides+3, cantAsteroides+10);
 			ss.resize(1200, 800);
@@ -256,6 +279,16 @@ public class PantallaJuego implements Screen {
 		this.explosionSound.dispose();
 		this.gameMusic.dispose();
 
+	}
+
+	public Nave4 getNave() {
+		// TODO Auto-generated method stub
+		return nave;
+	}
+
+	public ArrayList<Bullet> getBalas() {
+		// TODO Auto-generated method stub
+		return null;
 	}
    
 }
