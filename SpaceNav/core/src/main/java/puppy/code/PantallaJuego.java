@@ -20,6 +20,7 @@ public class PantallaJuego implements Screen {
 	private OrthographicCamera camera;	
 	private SpriteBatch batch;
 	private Sound explosionSound;
+	private Sound powerUpSound;
 	private Music gameMusic;
 	private int score;
 	private int ronda;
@@ -52,7 +53,9 @@ public class PantallaJuego implements Screen {
 		//inicializar assets; musica de fondo y efectos de sonido
 		explosionSound = Gdx.audio.newSound(Gdx.files.internal("explosion.ogg"));
 		explosionSound.setVolume(1,0.5f);
-		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("piano-loops.wav")); //
+		powerUpSound = Gdx.audio.newSound(Gdx.files.internal("powerUpSound.mp3"));
+		powerUpSound.setVolume(1,0.5f);
+		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("piano-loops.wav")); 
 		
 		gameMusic.setLooping(true);
 		gameMusic.setVolume(0.01f);
@@ -75,13 +78,21 @@ public class PantallaJuego implements Screen {
 	  	    balls2.add(bb);
 	  	}
 	    
-	   Random r1 = new Random();
+	   /*Random r1 = new Random();
 	    
 	    if (r1.nextFloat() < 0.3f) {
 	        powerUps.add(new RedStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
-	    }
+	    }*/
 	}
-    
+    	
+	public void dibujaEncabezado() {
+		CharSequence str = "Vidas: "+nave.getVidas()+" Ronda: "+ronda;
+		game.getFont().getData().setScale(2f);		
+		game.getFont().draw(batch, str, 10, 30);
+		game.getFont().draw(batch, "Score:"+this.score, Gdx.graphics.getWidth()-150, 30);
+		game.getFont().draw(batch, "HighScore:"+game.getHighScore(), Gdx.graphics.getWidth()/2-100, 30);
+	}
+	
 	public void slowDownAsteroids(float duration) {
 	    slowDownTimeRemaining = duration;
 	    for (Ball2 asteroid : balls1) {
@@ -93,15 +104,6 @@ public class PantallaJuego implements Screen {
 	    for (Ball2 asteroid : balls1) {
 	        asteroid.setSpeedMultiplier(1.0f); // Restaura la velocidad normal
 	    }
-	}
-
-	
-	public void dibujaEncabezado() {
-		CharSequence str = "Vidas: "+nave.getVidas()+" Ronda: "+ronda;
-		game.getFont().getData().setScale(2f);		
-		game.getFont().draw(batch, str, 10, 30);
-		game.getFont().draw(batch, "Score:"+this.score, Gdx.graphics.getWidth()-150, 30);
-		game.getFont().draw(batch, "HighScore:"+game.getHighScore(), Gdx.graphics.getWidth()/2-100, 30);
 	}
 	
 	public void destruirAsteroides() {
@@ -130,9 +132,9 @@ public class PantallaJuego implements Screen {
 	        if (powerUpSpawnTimer <= 0) {
 	            Random r1 = new Random();
 	            
-	            if (r1.nextFloat() < 0.5f) {  
+	            if (r1.nextFloat() < 0.1f) {  // Probabilidad del 10% para MagicStar
 	                powerUps.add(new MagicStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
-	            } else if (r1.nextFloat() < 0.8f) { // Probabilidad del 80% para RedStar
+	            } else if (r1.nextFloat() < 0.7f) { // Probabilidad del 70% para RedStar
 	                powerUps.add(new RedStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
 	            } else if (r1.nextFloat() < 0.5f) { // Probabilidad del 50% para BlueStar
 	                powerUps.add(new BlueStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
@@ -213,6 +215,7 @@ public class PantallaJuego implements Screen {
 	    	        System.out.println("¡PowerUp recogido!"); // Confirma la recogida del PowerUp
 	    	        powerUp.applyEffect(this); // Aplica el efecto correspondiente
 	    	        powerUps.remove(powerUp);
+	    	        powerUpSound.play();
 	    	        break;
 	    	    }
 	    	}
@@ -228,12 +231,7 @@ public class PantallaJuego implements Screen {
 	      //nivel completado
 	      
 	      if (balls1.size()==0) {
-	    	  nave.disableTripleShot();
-			Screen ss = new PantallaJuego(game,ronda+1, nave.getVidas(), score, 
-					velXAsteroides+3, velYAsteroides+3, cantAsteroides+10);
-			ss.resize(1200, 800);
-			game.setScreen(ss);
-			dispose();
+	    	  avanzarARondaSiguiente();
 		  }
 	     
 	    	 

@@ -12,8 +12,8 @@ public class Ball2 {
     private int y;
     private int xSpeed;
     private int ySpeed;
-    private int xSpeedOriginal;
-    private int ySpeedOriginal;
+    /*private int xSpeedOriginal;
+    private int ySpeedOriginal;*/
     private float speedMultiplier = 1.0f;
     private Sprite spr;
 
@@ -34,8 +34,8 @@ public class Ball2 {
         // Guardar velocidades originales
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
-        this.xSpeedOriginal = xSpeed;
-        this.ySpeedOriginal = ySpeed;
+        /*this.xSpeedOriginal = xSpeed;
+        this.ySpeedOriginal = ySpeed;*/
     }
     
     public void update() {
@@ -72,7 +72,7 @@ public class Ball2 {
         }
     }
 
-    public void reducirVelocidadTemporalmente(float factor, float duration) {
+    /*public void reducirVelocidadTemporalmente(float factor, float duration) {
         xSpeed *= factor;
         ySpeed *= factor;
 
@@ -88,7 +88,7 @@ public class Ball2 {
     private void restaurarVelocidad() {
         xSpeed = xSpeedOriginal;
         ySpeed = ySpeedOriginal;
-    }
+    }*/
 
     // Getters y Setters para velocidades
     public int getXSpeed() {

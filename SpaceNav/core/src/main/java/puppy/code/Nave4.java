@@ -45,7 +45,7 @@ public class Nave4 {
         System.out.println("¡Triple disparo activado!");
     }
     
-    public void shoot(ArrayList<Bullet> bullets) {
+    /*public void shoot(ArrayList<Bullet> bullets) {
         if (tripleShotEnabled) {
             // Misil central: va directamente hacia arriba
             bullets.add(new Bullet(spr.getX(), spr.getY(), 0, 3, txBala));
@@ -59,7 +59,7 @@ public class Nave4 {
             // Disparo único en línea recta hacia arriba
             bullets.add(new Bullet(spr.getX(), spr.getY(), 0, 5, txBala));
         }
-    }
+    }*/
 
 
     
@@ -117,21 +117,32 @@ public class Nave4 {
             if (tiempoHerido <= 0) herido = false;
         }
 
-        // Disparo en la dirección actual
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             float balaX = spr.getX() + spr.getWidth() / 2 - 5;
             float balaY = spr.getY() + spr.getHeight() / 2 - 5;
-            int balaXVel = 0, balaYVel = 0;
-
-            switch (direccion) {
+            
+            if (tripleShotEnabled) { // Disparo en las tres direcciones
+            	Bullet balaCentral = new Bullet(balaX, balaY, 0, 3, txBala);
+            	juego.agregarBala(balaCentral);
+            	Bullet balaIzquierda = new Bullet(balaX, balaY, -3, 3, txBala);
+            	juego.agregarBala(balaIzquierda);
+            	Bullet balaDerecha = new Bullet(balaX, balaY, 3, 3, txBala);
+            	juego.agregarBala(balaDerecha);
+            }
+            
+            else { // Disparo en la dirección actual
+                int balaXVel = 0, balaYVel = 0;
+                switch (direccion) {
                 case 0: balaYVel = 3; break;    // Disparo arriba
                 case 1: balaXVel = 3; break;    // Disparo derecha
                 case 2: balaYVel = -3; break;   // Disparo abajo
                 case 3: balaXVel = -3; break;   // Disparo izquierda
-            }
-
-            Bullet bala = new Bullet(balaX, balaY, balaXVel, balaYVel, txBala);
-            juego.agregarBala(bala);
+              }
+                Bullet bala = new Bullet(balaX, balaY, balaXVel, balaYVel, txBala);
+                juego.agregarBala(bala);
+                
+           }
+            
             soundBala.play();
         }
     }
