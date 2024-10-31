@@ -10,6 +10,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
@@ -35,7 +36,6 @@ public class PantallaJuego implements Screen {
 	
 	private float powerUpSpawnTimer = 5f;
     private float powerUpSpawnInterval = 5f;
-
 
 	public PantallaJuego(SpaceNavigation game, int ronda, int vidas, int score,  
 			int velXAsteroides, int velYAsteroides, int cantAsteroides) {
@@ -75,10 +75,10 @@ public class PantallaJuego implements Screen {
 	  	    balls2.add(bb);
 	  	}
 	    
-	   // Random r1 = new Random();
+	   Random r1 = new Random();
 	    
-	    if (r.nextFloat() < 0.8f) {
-	        powerUps.add(new RedStar(r.nextInt(Gdx.graphics.getWidth()), r.nextInt(Gdx.graphics.getHeight())));
+	    if (r1.nextFloat() < 0.3f) {
+	        powerUps.add(new RedStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
 	    }
 	}
     
@@ -214,8 +214,8 @@ public class PantallaJuego implements Screen {
 		  }
 	     
 	    	 
-	}
-    
+	}    
+	
     public boolean agregarBala(Bullet bb) {
     	return balas.add(bb);
     }
@@ -255,6 +255,7 @@ public class PantallaJuego implements Screen {
 		// TODO Auto-generated method stub
 		this.explosionSound.dispose();
 		this.gameMusic.dispose();
+
 	}
    
 }

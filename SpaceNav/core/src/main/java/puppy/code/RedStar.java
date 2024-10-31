@@ -1,5 +1,6 @@
 package puppy.code;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 public class RedStar extends PowerUp {
@@ -7,7 +8,7 @@ public class RedStar extends PowerUp {
     private boolean active = false;
 
     public RedStar(int x, int y) {
-        super(x, y, new Texture("Estrella_Roja.png")); // Usa la textura de la Red Star
+        super(x, y, new Texture(Gdx.files.internal("Estrella_Roja2.png"))); // Usa la textura de la Red Star
     }
 
     @Override
