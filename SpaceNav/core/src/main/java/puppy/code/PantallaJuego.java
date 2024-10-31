@@ -30,6 +30,11 @@ public class PantallaJuego implements Screen {
 	private  ArrayList<Ball2> balls1 = new ArrayList<>();
 	private  ArrayList<Ball2> balls2 = new ArrayList<>();
 	private  ArrayList<Bullet> balas = new ArrayList<>();
+	private ArrayList<PowerUp> powerUps = new ArrayList<>();
+	private float slowDownTimeRemaining = 0;
+	
+	private float powerUpSpawnTimer = 5f;
+    private float powerUpSpawnInterval = 5f;
 
 
 	public PantallaJuego(SpaceNavigation game, int ronda, int vidas, int score,  
@@ -50,7 +55,7 @@ public class PantallaJuego implements Screen {
 		gameMusic = Gdx.audio.newMusic(Gdx.files.internal("piano-loops.wav")); //
 		
 		gameMusic.setLooping(true);
-		gameMusic.setVolume(0.5f);
+		gameMusic.setVolume(0.01f);
 		gameMusic.play();
 		
 	    // cargar imagen de la nave, 64x64   
@@ -69,8 +74,28 @@ public class PantallaJuego implements Screen {
 	  	    balls1.add(bb);
 	  	    balls2.add(bb);
 	  	}
+	    
+	   // Random r1 = new Random();
+	    
+	    if (r.nextFloat() < 0.8f) {
+	        powerUps.add(new RedStar(r.nextInt(Gdx.graphics.getWidth()), r.nextInt(Gdx.graphics.getHeight())));
+	    }
 	}
     
+	public void slowDownAsteroids(float duration) {
+	    slowDownTimeRemaining = duration;
+	    for (Ball2 asteroid : balls1) {
+	        asteroid.setSpeedMultiplier(0.5f); // Reduce la velocidad a la mitad
+	    }
+	}
+
+	public void restoreAsteroidSpeed() {
+	    for (Ball2 asteroid : balls1) {
+	        asteroid.setSpeedMultiplier(1.0f); // Restaura la velocidad normal
+	    }
+	}
+
+	
 	public void dibujaEncabezado() {
 		CharSequence str = "Vidas: "+nave.getVidas()+" Ronda: "+ronda;
 		game.getFont().getData().setScale(2f);		
@@ -82,7 +107,21 @@ public class PantallaJuego implements Screen {
 	public void render(float delta) {
 		  Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
           batch.begin();
+          
 		  dibujaEncabezado();
+		  
+		  powerUpSpawnTimer -= delta;
+	        if (powerUpSpawnTimer <= 0) {
+	            Random r1 = new Random();
+	            // Generar un nuevo PowerUp con una probabilidad del 80%
+	            if (r1.nextFloat() < 0.8f) {
+	                powerUps.add(new RedStar(r1.nextInt(Gdx.graphics.getWidth()), 
+	                                          r1.nextInt(Gdx.graphics.getHeight())));
+	            }
+	            // Reiniciar el temporizador
+	            powerUpSpawnTimer = powerUpSpawnInterval;
+	        }
+		  
 	      if (!nave.estaHerido()) {
 		      // colisiones entre balas y asteroides y su destruccion  
 	    	  for (int i = 0; i < balas.size(); i++) {
@@ -146,8 +185,26 @@ public class PantallaJuego implements Screen {
   			game.setScreen(ss);
   			dispose();
   		  }
+	      
+	      for (PowerUp powerUp : powerUps) {
+	    	    powerUp.draw(batch);
+	    	    if (powerUp.checkCollision(nave)) {
+	    	        powerUp.applyEffect(this);
+	    	        powerUps.remove(powerUp);
+	    	        break;
+	    	    }
+	    	}
+	      
+	      if (slowDownTimeRemaining > 0) {
+	    	    slowDownTimeRemaining -= delta;
+	    	    if (slowDownTimeRemaining <= 0) {
+	    	        restoreAsteroidSpeed();
+	    	    }
+	    	}
+	      
 	      batch.end();
 	      //nivel completado
+	      
 	      if (balls1.size()==0) {
 			Screen ss = new PantallaJuego(game,ronda+1, nave.getVidas(), score, 
 					velXAsteroides+3, velYAsteroides+3, cantAsteroides+10);
@@ -155,6 +212,7 @@ public class PantallaJuego implements Screen {
 			game.setScreen(ss);
 			dispose();
 		  }
+	     
 	    	 
 	}
     
