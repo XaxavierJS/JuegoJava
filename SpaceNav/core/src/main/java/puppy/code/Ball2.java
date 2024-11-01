@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Timer;
 
 public class Ball2 {
-    private int x;
+	private int x;
     private int y;
     private int xSpeed;
     private int ySpeed;
@@ -62,12 +62,12 @@ public class Ball2 {
         if (spr.getBoundingRectangle().overlaps(b2.spr.getBoundingRectangle())) {
             if (xSpeed == 0) xSpeed += b2.xSpeed / 2;
             if (b2.xSpeed == 0) b2.xSpeed += xSpeed / 2;
-            xSpeed = -xSpeed;
+            //xSpeed = -xSpeed;
             b2.xSpeed = -b2.xSpeed;
 
             if (ySpeed == 0) ySpeed += b2.ySpeed / 2;
             if (b2.ySpeed == 0) b2.ySpeed += ySpeed / 2;
-            ySpeed = -ySpeed;
+            //ySpeed = -ySpeed;
             b2.ySpeed = -b2.ySpeed;
         }
     }

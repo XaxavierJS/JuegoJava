@@ -29,7 +29,8 @@ public class Nave4 {
     
     private boolean tripleShotEnabled = false;
     
-    public Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala) {
+    public Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala, int vidas) {
+    	this.vidas = vidas;
     	sonidoHerido = soundChoque;
     	this.soundBala = soundBala;
     	this.txBala = txBala;
@@ -153,12 +154,12 @@ public class Nave4 {
         	// rebote
             if (xVel ==0) xVel += b.getXSpeed()/2;
             if (b.getXSpeed() ==0) b.setXSpeed(b.getXSpeed() + (int)xVel/2);
-            xVel = - xVel;
+            //xVel = - xVel;
             b.setXSpeed(-b.getXSpeed());
             
             if (yVel ==0) yVel += b.getySpeed()/2;
             if (b.getySpeed() ==0) b.setySpeed(b.getySpeed() + (int)yVel/2);
-            yVel = - yVel;
+            //yVel = - yVel;
             b.setySpeed(- b.getySpeed());
             // despegar sprites
       /*      int cont = 0;
