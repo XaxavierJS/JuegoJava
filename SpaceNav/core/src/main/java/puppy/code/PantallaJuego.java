@@ -242,16 +242,15 @@ public class PantallaJuego implements Screen {
 
     private void procesarPowerUps() {
         for (PowerUp powerUp : powerUps) {
-            powerUp.draw(batch);
+            powerUp.draw(batch); 
             if (powerUp.checkCollision(nave)) {
                 System.out.println("¡PowerUp recogido!");
-                aplicarPowerUp(powerUp);
-                powerUps.remove(powerUp);
+                powerUp.applyEffect(this);
+                powerUps.remove(powerUp); 
                 powerUpSound.play();
                 break;
             }
         }
-    }
     
     public void aplicarPowerUp(PowerUp powerUp) {
         powerUp.applyEffect(this);

@@ -4,27 +4,33 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
-public abstract class PowerUp implements EffectApplier {
-
+public abstract class PowerUp {
     protected float x;
     protected float y;
     protected Texture texture;
+    protected EffectStrategy effectStrategy;
 
-    public PowerUp(float x, float y, Texture texture) {
+    public PowerUp(float x, float y, Texture texture, EffectStrategy effectStrategy) {
         this.x = x;
         this.y = y;
         this.texture = texture;
+        this.effectStrategy = effectStrategy;
     }
 
     public void draw(SpriteBatch batch) {
         batch.draw(texture, x, y);
     }
 
-    @Override
-    public abstract void applyEffect(PantallaJuego gameScreen);
+    public void applyEffect(PantallaJuego gameScreen) {
+        onActivate();
+
+        if (effectStrategy != null) {
+            effectStrategy.applyEffect(gameScreen);
+        }
+    }
+
 
     public boolean checkCollision(Nave4 nave) {
-        // Check collision with the ship
         return nave.getBounds().overlaps(new Rectangle(x, y, texture.getWidth(), texture.getHeight()));
     }
 }
