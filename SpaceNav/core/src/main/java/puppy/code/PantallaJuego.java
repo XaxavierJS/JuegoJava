@@ -53,7 +53,9 @@ public class PantallaJuego implements Screen {
         
         initializeAudio();
         
-        nave = createNave(vidas);
+        if (nave == null) {
+            createNave(vidas);
+        }
         
         crearAsteroides();
     }
@@ -70,8 +72,8 @@ public class PantallaJuego implements Screen {
         gameMusic.play();
     }
     
-    private Nave4 createNave(int vidas) {
-        return new Nave4(Gdx.graphics.getWidth()/2-50, 30, new Texture(Gdx.files.internal("MainShip3.png")),
+    private void createNave(int vidas) {
+    	nave = Nave4.getInstance(Gdx.graphics.getWidth()/2-50, 30, new Texture(Gdx.files.internal("MainShip3.png")),
                 Gdx.audio.newSound(Gdx.files.internal("hurt.ogg")), 
                 new Texture(Gdx.files.internal("Rocket2.png")), 
                 Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3")), vidas);
@@ -119,6 +121,11 @@ public class PantallaJuego implements Screen {
 
     private void avanzarARondaSiguiente() {
         nave.disableTripleShot();
+        
+        if (nave == null) {
+            createNave(nave.getVidas());
+        }
+        
         Screen ss = new PantallaJuego(game, ronda + 1, nave.getVidas(), score,
                 velXAsteroides + 3, velYAsteroides + 3, cantAsteroides + 10);
         ss.resize(1200, 800);

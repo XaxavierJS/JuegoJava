@@ -27,18 +27,30 @@ public class Nave4 {
     private int direccion = 0;
     private float velocidadConstante = 5;
     
+    private static Nave4 instance;
+    
     private boolean tripleShotEnabled = false;
     
-    public Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala, int vidas) {
+    private Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala, int vidas) {
     	this.vidas = vidas;
     	sonidoHerido = soundChoque;
     	this.soundBala = soundBala;
     	this.txBala = txBala;
-    	spr = new Sprite(tx);
-    	spr.setPosition(x, y);
-    	//spr.setOriginCenter();
+    	this.spr = new Sprite(tx);
+    	this.spr.setPosition(x, y);
     	spr.setBounds(x, y, 45, 45);
 
+    }
+    
+    public static Nave4 getInstance(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala, int vidas) {
+        if (instance == null) {
+            instance = new Nave4(x, y, tx, soundChoque, txBala, soundBala, vidas);
+        }
+        return instance;
+    }
+    
+    public Nave4 getInstance() {
+    	return instance;
     }
     
     public void enableTripleShot() {
