@@ -146,55 +146,52 @@ public class Nave4 extends GameObject{
     public void disparar(PantallaJuego juego) {
         float balaX = spr.getX() + spr.getWidth() / 2 - 5;
         float balaY = spr.getY() + spr.getHeight() / 2 - 5;
-    
-        // Crear la bala usando la fábrica
+
+        int balaXVel = 0, balaYVel = 0;
+
+        // Configurar velocidades según la dirección
+        switch (direccion) {
+            case 0: balaYVel = 3; break;    // Disparo hacia arriba
+            case 1: balaXVel = 3; break;    // Disparo hacia la derecha
+            case 2: balaYVel = -3; break;   // Disparo hacia abajo
+            case 3: balaXVel = -3; break;   // Disparo hacia la izquierda
+        }
+
+        // Crear la bala central
         Bullet bullet = (Bullet) factory.createBullet();
-        bullet.setPosition(balaX, balaY); // Configurar posición inicial
-        juego.agregarBala(bullet); // Agregar la bala al juego
-    
+        bullet.setPosition(balaX, balaY);
+        bullet.setSpeed(balaXVel, balaYVel);
+        juego.agregarBala(bullet);
+
         if (tripleShotEnabled) {
             // Crear balas adicionales para el disparo triple
             Bullet leftBullet = (Bullet) factory.createBullet();
             leftBullet.setPosition(balaX, balaY);
-            leftBullet.setSpeed(-3, 3);
-    
+            leftBullet.setSpeed(balaXVel - 1, balaYVel - 1);
+
             Bullet rightBullet = (Bullet) factory.createBullet();
             rightBullet.setPosition(balaX, balaY);
-            rightBullet.setSpeed(3, 3);
-    
+            rightBullet.setSpeed(balaXVel + 1, balaYVel + 1);
+
             juego.agregarBala(leftBullet);
             juego.agregarBala(rightBullet);
         }
-    
+
         soundBala.play();
     }
-    
       
+    @Override
     public void handleCollision(GameObject other) {
-    	if (other instanceof Ball2) {
-            Ball2 b = (Ball2) other;
-            if (!herido && b.getArea().overlaps(spr.getBoundingRectangle())) {
-                // Lógica de colisión específica para Ball2
-                if (xVel == 0) xVel += b.getXSpeed() / 2;
-                if (b.getXSpeed() == 0) b.setXSpeed(b.getXSpeed() + (int)xVel / 2);
-                b.setXSpeed(-b.getXSpeed());
-
-                if (yVel == 0) yVel += b.getySpeed() / 2;
-                if (b.getySpeed() == 0) b.setySpeed(b.getySpeed() + (int)yVel / 2);
-                b.setySpeed(-b.getySpeed());
-
-                // Actualizar estado de la nave
-                vidas--;
-                herido = true;
-                tiempoHerido = tiempoHeridoMax;
-                sonidoHerido.play();
-                if (vidas <= 0) {
-                    destruida = true;
-                }
+        if (other instanceof Ball2 && !herido) {
+            vidas--;
+            herido = true; // Activar estado de invulnerabilidad temporal
+            tiempoHerido = tiempoHeridoMax;
+            sonidoHerido.play();
+            if (vidas <= 0) {
+                destruida = true;
             }
         }
-    }
-    	
+    }	
     public void disableTripleShot() {
         this.tripleShotEnabled = false;
     }

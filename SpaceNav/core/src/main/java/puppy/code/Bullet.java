@@ -51,4 +51,8 @@ public class Bullet extends GameObject{
     
     public boolean isDestroyed() {return destroyed;}
 	
+    public void setSpeed(int xSpeed, int ySpeed) {
+        this.xSpeed = xSpeed;
+        this.ySpeed = ySpeed;
+    }
 }

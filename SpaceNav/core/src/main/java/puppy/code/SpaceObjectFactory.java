@@ -1,5 +1,6 @@
 package puppy.code;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import java.util.Random;
 
@@ -28,7 +29,7 @@ public class SpaceObjectFactory implements GameObjectFactory {
     @Override
     public PowerUp createPowerUp() {
         Random random = new Random();
-        int type = random.nextInt(3);
+        int type = random.nextInt(3); // Elegir un tipo de power-up al azar
         switch (type) {
             case 0:
                 return new RedStar(random.nextInt(Gdx.graphics.getWidth()), random.nextInt(Gdx.graphics.getHeight()));

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -130,11 +131,11 @@ public class PantallaJuego implements Screen {
 
     private void avanzarARondaSiguiente() {
         nave.disableTripleShot();
-        
+
         if (nave == null) {
-            createNave(nave.getVidas());
+            createNave(nave.getVidas(), factory); // Pasa la fábrica como segundo argumento
         }
-        
+
         Screen ss = new PantallaJuego(game, ronda + 1, nave.getVidas(), score,
                 velXAsteroides + 3, velYAsteroides + 3, cantAsteroides + 10);
         ss.resize(1200, 800);
@@ -146,52 +147,57 @@ public class PantallaJuego implements Screen {
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
+
+        dibujaEncabezado(); // Dibujar encabezado (vidas, puntuación, etc.)
+
+        // Detectar disparo
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            nave.disparar(this);
+        }
+        nave.move();
         
-        dibujaEncabezado();
+        procesarPowerUps();
         
         powerUpSpawnTimer -= delta;
         if (powerUpSpawnTimer <= 0) {
-            spawnPowerUp();
+            spawnPowerUp(); // Generar un nuevo power-up
         }
         
-        checkHerido();
-
+        // Actualizar balas
         actualizarBalas();
-        checkColisionNave();
+
+        // Actualizar asteroides
         actualizarAsteroides();
-        
-        
-        nave.draw(batch, this);
-        
+
+        // Verificar colisiones de la nave
+        checkColisionNave();
+
+        // Dibujar nave
+        nave.draw(batch);
+
+        // Verificar si la nave está destruida
         if (nave.estaDestruido()) {
-            if (score > game.getHighScore())
+            if (score > game.getHighScore()) {
                 game.setHighScore(score);
+            }
             Screen ss = new PantallaGameOver(game);
             ss.resize(1200, 800);
             game.setScreen(ss);
             dispose();
         }
-        
-        procesarPowerUps();
 
-        if (slowDownTimeRemaining > 0) {
-            slowDownTimeRemaining -= delta;
-            if (slowDownTimeRemaining <= 0) {
-                restoreAsteroidSpeed();
-            }
-        }
-        
         batch.end();
-        
+
+        // Verificar condiciones para avanzar de ronda
         if (balls1.size() == 0) {
             avanzarARondaSiguiente();
         }
     }
 
     private void spawnPowerUp() {
-        PowerUp powerUp = factory.createPowerUp();
-        powerUps.add(powerUp);
-        powerUpSpawnTimer = powerUpSpawnInterval;
+        PowerUp powerUp = factory.createPowerUp(); // Crear power-up usando la fábrica
+        powerUps.add(powerUp); // Añadirlo a la lista de power-ups
+        powerUpSpawnTimer = powerUpSpawnInterval; // Reiniciar el temporizador de generación
     }
     
 
@@ -231,17 +237,14 @@ public class PantallaJuego implements Screen {
     }
     
     private void checkColisionNave() {
-    	for (int i = 0; i < balls1.size(); i++) {
-    	    Ball2 b=balls1.get(i);
-    	    b.draw(batch);
-	          //perdió vida o game over
-              if (nave.checkCollision(b)) {
-	            //asteroide se destruye con el choque             
-            	 balls1.remove(i);
-            	 balls2.remove(i);
-            	 i--;
-          }   	  
-	    }
+        for (int i = 0; i < balls1.size(); i++) {
+            Ball2 asteroid = balls1.get(i);
+            if (nave.checkCollision(asteroid)) {
+                nave.handleCollision(asteroid);
+                balls1.remove(i); // Elimina el asteroide tras la colisión
+                i--;
+            }
+        }
     }
 
     private void procesarPowerUps() {
@@ -255,6 +258,7 @@ public class PantallaJuego implements Screen {
                 break;
             }
         }
+    }
     
     public void aplicarPowerUp(PowerUp powerUp) {
         powerUp.applyEffect(this);
