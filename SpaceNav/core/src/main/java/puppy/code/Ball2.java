@@ -7,19 +7,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Timer;
 
-public class Ball2 {
+public class Ball2 extends GameObject{
 	private int x;
     private int y;
     private int xSpeed;
     private int ySpeed;
-    /*private int xSpeedOriginal;
-    private int ySpeedOriginal;*/
     private float speedMultiplier = 1.0f;
-    private Sprite spr;
 
     public Ball2(int x, int y, int size, int xSpeed, int ySpeed, Texture tx) {
-        spr = new Sprite(tx);
-        this.x = x;
+    	
+    	super(x, y, new Sprite(tx));
 
         // Validar que el borde de la esfera no quede fuera
         if (x - size < 0) this.x = x + size;
@@ -29,16 +26,15 @@ public class Ball2 {
         if (y - size < 0) this.y = y + size;
         if (y + size > Gdx.graphics.getHeight()) this.y = y - size;
 
-        spr.setPosition(x, y);
+        spr.setPosition(this.x, this.y);
 
         // Guardar velocidades originales
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
-        /*this.xSpeedOriginal = xSpeed;
-        this.ySpeedOriginal = ySpeed;*/
     }
     
-    public void update() {
+    @Override
+    protected void move() {
         x += xSpeed * speedMultiplier;
         y += ySpeed * speedMultiplier;
 
@@ -52,43 +48,23 @@ public class Ball2 {
 
     public Rectangle getArea() {
         return spr.getBoundingRectangle();
-    }
+    } 
+    
+    @Override
+    public void handleCollision(GameObject other) {
+    	if (checkCollision(other)) {
+            if (checkCollision(other) && other instanceof Ball2) {
+            	Ball2 otherBall = (Ball2) other;
+                int tempXSpeed = this.xSpeed;
+                this.xSpeed = otherBall.xSpeed;
+                otherBall.xSpeed = tempXSpeed;
 
-    public void draw(SpriteBatch batch) {
-        spr.draw(batch);
-    }
-
-    public void checkCollision(Ball2 b2) {
-        if (spr.getBoundingRectangle().overlaps(b2.spr.getBoundingRectangle())) {
-            if (xSpeed == 0) xSpeed += b2.xSpeed / 2;
-            if (b2.xSpeed == 0) b2.xSpeed += xSpeed / 2;
-            //xSpeed = -xSpeed;
-            b2.xSpeed = -b2.xSpeed;
-
-            if (ySpeed == 0) ySpeed += b2.ySpeed / 2;
-            if (b2.ySpeed == 0) b2.ySpeed += ySpeed / 2;
-            //ySpeed = -ySpeed;
-            b2.ySpeed = -b2.ySpeed;
+                int tempYSpeed = this.ySpeed;
+                this.ySpeed = otherBall.ySpeed;
+                otherBall.ySpeed = tempYSpeed;
+            }
         }
     }
-
-    /*public void reducirVelocidadTemporalmente(float factor, float duration) {
-        xSpeed *= factor;
-        ySpeed *= factor;
-
-        // Programar la restauración de la velocidad original
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                restaurarVelocidad();
-            }
-        }, duration);
-    }
-
-    private void restaurarVelocidad() {
-        xSpeed = xSpeedOriginal;
-        ySpeed = ySpeedOriginal;
-    }*/
 
     // Getters y Setters para velocidades
     public int getXSpeed() {

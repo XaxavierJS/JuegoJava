@@ -6,44 +6,46 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 
-public class Bullet {
+public class Bullet extends GameObject{
 
 	private int xSpeed;
 	private int ySpeed;
-	private boolean destroyed = false;
-	private Sprite spr;
+	private boolean destroyed = false; 
 	    
-	    public Bullet(float x, float y, int xSpeed, int ySpeed, Texture tx) {
-	    	spr = new Sprite(tx);
-	    	spr.setPosition(x, y);
-	        this.xSpeed = xSpeed;
-	        this.ySpeed = ySpeed;
-	    }
-	    public void update() {
-	        spr.setPosition(spr.getX()+xSpeed, spr.getY()+ySpeed);
-	        if (spr.getX() < 0 || spr.getX()+spr.getWidth() > Gdx.graphics.getWidth()) {
-	            destroyed = true;
-	        }
-	        if (spr.getY() < 0 || spr.getY()+spr.getHeight() > Gdx.graphics.getHeight()) {
-	        	destroyed = true;
-	        }
-	        
-	    }
-	    
-	    public void draw(SpriteBatch batch) {
-	    	spr.draw(batch);
-	    }
-	    
-	    public boolean checkCollision(Ball2 b2) {
-	        if(spr.getBoundingRectangle().overlaps(b2.getArea())){
-	        	// Se destruyen ambos
-	            this.destroyed = true;
-	            return true;
-	
-	        }
-	        return false;
-	    }
-	    
-	    public boolean isDestroyed() {return destroyed;}
+    public Bullet(float x, float y, int xSpeed, int ySpeed, Texture tx) {
+    	super((int) x, (int) y, new Sprite(tx));
+    	
+        this.xSpeed = xSpeed;
+        this.ySpeed = ySpeed;
+        
+        spr.setPosition(x, y);
+    }
+    
+    @Override
+    protected void move() {
+    	float newX = spr.getX() + xSpeed;
+        float newY = spr.getY() + ySpeed;
+        
+        if (newX < 0 || newX + spr.getWidth() > Gdx.graphics.getWidth() ||
+        		newY < 0 || newY + spr.getHeight() > Gdx.graphics.getHeight()) {
+            destroyed = true;
+        }
+        spr.setPosition(newX, newY);
+    }
+    
+    @Override
+    protected void handleCollision(GameObject other) {
+    	if (other instanceof Ball2) {
+            Ball2 ball = (Ball2) other;
+
+            // Verifica la colisión usando el método genérico checkCollision de GameObject
+            if (checkCollision(ball)) {
+                // Se destruyen ambos (o al menos esta bala)
+                this.destroyed = true;
+            }
+        }
+    }
+    
+    public boolean isDestroyed() {return destroyed;}
 	
 }

@@ -5,19 +5,16 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import java.util.ArrayList;
 
 
-public class Nave4 {
+public class Nave4 extends GameObject{
 	
 	private boolean destruida = false;
     private int vidas = 3;
     private float xVel = 0;
     private float yVel = 0;
-    private Sprite spr;
     private Sound sonidoHerido;
     private Sound soundBala;
     private Texture txBala;
@@ -26,18 +23,18 @@ public class Nave4 {
     private int tiempoHerido;
     private int direccion = 0;
     private float velocidadConstante = 5;
-    
+     
     private static Nave4 instance;
     
     private boolean tripleShotEnabled = false;
     
     private Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala, int vidas) {
+    	super(x, y, new Sprite(tx));
+    	
     	this.vidas = vidas;
-    	sonidoHerido = soundChoque;
+    	this.sonidoHerido = soundChoque;
     	this.soundBala = soundBala;
     	this.txBala = txBala;
-    	this.spr = new Sprite(tx);
-    	this.spr.setPosition(x, y);
     	spr.setBounds(x, y, 45, 45);
 
     }
@@ -57,29 +54,13 @@ public class Nave4 {
         this.tripleShotEnabled = true;
         System.out.println("¡Triple disparo activado!");
     }
-    
-    /*public void shoot(ArrayList<Bullet> bullets) {
-        if (tripleShotEnabled) {
-            // Misil central: va directamente hacia arriba
-            bullets.add(new Bullet(spr.getX(), spr.getY(), 0, 3, txBala));
-            
-            // Misil izquierdo: va hacia arriba y un poco hacia la izquierda
-            bullets.add(new Bullet(spr.getX(), spr.getY(), -3, 3, txBala));
-            
-            // Misil derecho: va hacia arriba y un poco hacia la derecha
-            bullets.add(new Bullet(spr.getX(), spr.getY(), 3, 3, txBala));
-        } else {
-            // Disparo único en línea recta hacia arriba
-            bullets.add(new Bullet(spr.getX(), spr.getY(), 0, 5, txBala));
-        }
-    }*/
+  
 
 
     
-    public void draw(SpriteBatch batch, PantallaJuego juego) {
+    public void move() {
         float x = spr.getX();
         float y = spr.getY();
-        float velocidadConstante = 5; // Ajusta la velocidad constante a tu preferencia.
 
         // Reiniciar velocidad en cada frame para que no acumule movimiento
         xVel = 0;
@@ -121,16 +102,14 @@ public class Nave4 {
 
             // Establecer la nueva posición de la nave sin rotación
             spr.setPosition(newX, newY);
-            spr.draw(batch);
         } else {
             spr.setX(spr.getX() + MathUtils.random(-2, 2));
-            spr.draw(batch);
             spr.setX(x);
             tiempoHerido--;
             if (tiempoHerido <= 0) herido = false;
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+        /*if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             float balaX = spr.getX() + spr.getWidth() / 2 - 5;
             float balaY = spr.getY() + spr.getHeight() / 2 - 5;
             
@@ -157,37 +136,61 @@ public class Nave4 {
            }
             
             soundBala.play();
-        }
+        }*/
     }
 
-      
-    public boolean checkCollision(Ball2 b) {
-        if(!herido && b.getArea().overlaps(spr.getBoundingRectangle())){
-        	// rebote
-            if (xVel ==0) xVel += b.getXSpeed()/2;
-            if (b.getXSpeed() ==0) b.setXSpeed(b.getXSpeed() + (int)xVel/2);
-            //xVel = - xVel;
-            b.setXSpeed(-b.getXSpeed());
-            
-            if (yVel ==0) yVel += b.getySpeed()/2;
-            if (b.getySpeed() ==0) b.setySpeed(b.getySpeed() + (int)yVel/2);
-            //yVel = - yVel;
-            b.setySpeed(- b.getySpeed());
-            // despegar sprites
-      /*      int cont = 0;
-            while (b.getArea().overlaps(spr.getBoundingRectangle()) && cont<xVel) {
-               spr.setX(spr.getX()+Math.signum(xVel));
-            }   */
-        	//actualizar vidas y herir
-            vidas--;
-            herido = true;
-  		    tiempoHerido=tiempoHeridoMax;
-  		    sonidoHerido.play();
-            if (vidas<=0) 
-          	    destruida = true; 
-            return true;
+    
+    public void disparar(PantallaJuego juego) {
+        float balaX = spr.getX() + spr.getWidth() / 2 - 5;
+        float balaY = spr.getY() + spr.getHeight() / 2 - 5;
+
+        if (tripleShotEnabled) {
+            Bullet balaCentral = new Bullet(balaX, balaY, 0, 3, txBala);
+            juego.agregarBala(balaCentral);
+
+            Bullet balaIzquierda = new Bullet(balaX, balaY, -3, 3, txBala);
+            juego.agregarBala(balaIzquierda);
+
+            Bullet balaDerecha = new Bullet(balaX, balaY, 3, 3, txBala);
+            juego.agregarBala(balaDerecha);
+        } else {
+            int balaXVel = 0, balaYVel = 0;
+            switch (direccion) {
+                case 0: balaYVel = 3; break;
+                case 1: balaXVel = 3; break;
+                case 2: balaYVel = -3; break;
+                case 3: balaXVel = -3; break;
+            }
+            Bullet bala = new Bullet(balaX, balaY, balaXVel, balaYVel, txBala);
+            juego.agregarBala(bala);
         }
-        return false;
+
+        soundBala.play();
+    }
+      
+    public void handleCollision(GameObject other) {
+    	if (other instanceof Ball2) {
+            Ball2 b = (Ball2) other;
+            if (!herido && b.getArea().overlaps(spr.getBoundingRectangle())) {
+                // Lógica de colisión específica para Ball2
+                if (xVel == 0) xVel += b.getXSpeed() / 2;
+                if (b.getXSpeed() == 0) b.setXSpeed(b.getXSpeed() + (int)xVel / 2);
+                b.setXSpeed(-b.getXSpeed());
+
+                if (yVel == 0) yVel += b.getySpeed() / 2;
+                if (b.getySpeed() == 0) b.setySpeed(b.getySpeed() + (int)yVel / 2);
+                b.setySpeed(-b.getySpeed());
+
+                // Actualizar estado de la nave
+                vidas--;
+                herido = true;
+                tiempoHerido = tiempoHeridoMax;
+                sonidoHerido.play();
+                if (vidas <= 0) {
+                    destruida = true;
+                }
+            }
+        }
     }
     	
     public void disableTripleShot() {
@@ -203,6 +206,10 @@ public class Nave4 {
     }
     public boolean estaHerido() {
  	   return herido;
+    }
+    
+    public static void resetInstance() {
+    	instance = null;
     }
     
     public int getVidas() {return vidas;}

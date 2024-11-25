@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -139,6 +140,11 @@ public class PantallaJuego implements Screen {
         batch.begin();
         
         dibujaEncabezado();
+        nave.update();
+        // Verificar si se ha presionado la barra espaciadora para disparar
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            nave.disparar(this);  // Llama al método disparar de Nave4 y pasa la instancia actual de PantallaJuego
+        }
         
         powerUpSpawnTimer -= delta;
         if (powerUpSpawnTimer <= 0) {
@@ -152,7 +158,7 @@ public class PantallaJuego implements Screen {
         actualizarAsteroides();
         
         
-        nave.draw(batch, this);
+        nave.draw(batch);
         
         if (nave.estaDestruido()) {
             if (score > game.getHighScore())
@@ -228,16 +234,14 @@ public class PantallaJuego implements Screen {
     
     private void checkColisionNave() {
     	for (int i = 0; i < balls1.size(); i++) {
-    	    Ball2 b=balls1.get(i);
-    	    b.draw(batch);
-	          //perdió vida o game over
-              if (nave.checkCollision(b)) {
-	            //asteroide se destruye con el choque             
-            	 balls1.remove(i);
-            	 balls2.remove(i);
-            	 i--;
-          }   	  
-	    }
+            Ball2 b = balls1.get(i);
+            if (nave.checkCollision(b)) { // Verifica la colisión
+                nave.handleCollision(b); // Maneja la colisión
+                balls1.remove(i); // Elimina el asteroide de la lista
+                balls2.remove(i);
+                i--;
+            }
+        }
     }
 
     private void procesarPowerUps() {
