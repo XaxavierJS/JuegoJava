@@ -140,6 +140,7 @@ public class PantallaJuego implements Screen {
         batch.begin();
         
         dibujaEncabezado();
+        
         nave.update();
         // Verificar si se ha presionado la barra espaciadora para disparar
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
@@ -156,7 +157,7 @@ public class PantallaJuego implements Screen {
         actualizarBalas();
         checkColisionNave();
         actualizarAsteroides();
-        
+        		
         
         nave.draw(batch);
         
@@ -255,7 +256,7 @@ public class PantallaJuego implements Screen {
                 break;
             }
         }
-    
+    }
     public void aplicarPowerUp(PowerUp powerUp) {
         powerUp.applyEffect(this);
     }

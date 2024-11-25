@@ -14,5 +14,3 @@ public class BlueStar extends PowerUp {
         System.out.println("BlueStar activada. ¡Prepárate para disparos triples!");
     }
 }
-
-

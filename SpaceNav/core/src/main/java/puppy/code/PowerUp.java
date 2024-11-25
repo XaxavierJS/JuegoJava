@@ -28,9 +28,10 @@ public abstract class PowerUp {
             effectStrategy.applyEffect(gameScreen);
         }
     }
-
+    protected abstract void onActivate();
 
     public boolean checkCollision(Nave4 nave) {
         return nave.getBounds().overlaps(new Rectangle(x, y, texture.getWidth(), texture.getHeight()));
     }
+
 }
