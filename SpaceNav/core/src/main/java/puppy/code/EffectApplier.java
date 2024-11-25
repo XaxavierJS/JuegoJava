@@ -1,5 +1,5 @@
 package puppy.code;
 
-public interface EffectApplier {
+public interface EffectStrategy {
     void applyEffect(PantallaJuego gameScreen);
 }
