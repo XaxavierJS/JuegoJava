@@ -20,6 +20,9 @@ public class Bullet extends GameObject{
         
         spr.setPosition(x, y);
     }
+    public void setPosition(float x, float y) {
+        spr.setPosition(x, y);
+    }
     
     @Override
     protected void move() {

@@ -25,10 +25,10 @@ public class Nave4 extends GameObject{
     private float velocidadConstante = 5;
      
     private static Nave4 instance;
-    
+    private GameObjectFactory factory;
     private boolean tripleShotEnabled = false;
     
-    private Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala, int vidas) {
+    private Nave4(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala, int vidas, GameObjectFactory  factory) {
     	super(x, y, new Sprite(tx));
     	
     	this.vidas = vidas;
@@ -36,15 +36,18 @@ public class Nave4 extends GameObject{
     	this.soundBala = soundBala;
     	this.txBala = txBala;
     	spr.setBounds(x, y, 45, 45);
-
+        this.factory = factory;
     }
     
-    public static Nave4 getInstance(int x, int y, Texture tx, Sound soundChoque, Texture txBala, Sound soundBala, int vidas) {
-        if (instance == null) {
-            instance = new Nave4(x, y, tx, soundChoque, txBala, soundBala, vidas);
-        }
-        return instance;
+    public static Nave4 getInstance(int x, int y, Texture tx, Sound soundChoque,
+                                Texture txBala, Sound soundBala, int vidas,
+                                GameObjectFactory factory) {
+    if (instance == null) {
+        instance = new Nave4(x, y, tx, soundChoque, txBala, soundBala, vidas, factory);
     }
+    return instance;
+}
+
     
     public Nave4 getInstance() {
     	return instance;
@@ -143,30 +146,29 @@ public class Nave4 extends GameObject{
     public void disparar(PantallaJuego juego) {
         float balaX = spr.getX() + spr.getWidth() / 2 - 5;
         float balaY = spr.getY() + spr.getHeight() / 2 - 5;
-
+    
+        // Crear la bala usando la fábrica
+        Bullet bullet = (Bullet) factory.createBullet();
+        bullet.setPosition(balaX, balaY); // Configurar posición inicial
+        juego.agregarBala(bullet); // Agregar la bala al juego
+    
         if (tripleShotEnabled) {
-            Bullet balaCentral = new Bullet(balaX, balaY, 0, 3, txBala);
-            juego.agregarBala(balaCentral);
-
-            Bullet balaIzquierda = new Bullet(balaX, balaY, -3, 3, txBala);
-            juego.agregarBala(balaIzquierda);
-
-            Bullet balaDerecha = new Bullet(balaX, balaY, 3, 3, txBala);
-            juego.agregarBala(balaDerecha);
-        } else {
-            int balaXVel = 0, balaYVel = 0;
-            switch (direccion) {
-                case 0: balaYVel = 3; break;
-                case 1: balaXVel = 3; break;
-                case 2: balaYVel = -3; break;
-                case 3: balaXVel = -3; break;
-            }
-            Bullet bala = new Bullet(balaX, balaY, balaXVel, balaYVel, txBala);
-            juego.agregarBala(bala);
+            // Crear balas adicionales para el disparo triple
+            Bullet leftBullet = (Bullet) factory.createBullet();
+            leftBullet.setPosition(balaX, balaY);
+            leftBullet.setSpeed(-3, 3);
+    
+            Bullet rightBullet = (Bullet) factory.createBullet();
+            rightBullet.setPosition(balaX, balaY);
+            rightBullet.setSpeed(3, 3);
+    
+            juego.agregarBala(leftBullet);
+            juego.agregarBala(rightBullet);
         }
-
+    
         soundBala.play();
     }
+    
       
     public void handleCollision(GameObject other) {
     	if (other instanceof Ball2) {

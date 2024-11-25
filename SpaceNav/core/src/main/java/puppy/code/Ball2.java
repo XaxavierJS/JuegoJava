@@ -15,23 +15,11 @@ public class Ball2 extends GameObject{
     private float speedMultiplier = 1.0f;
 
     public Ball2(int x, int y, int size, int xSpeed, int ySpeed, Texture tx) {
-    	
-    	super(x, y, new Sprite(tx));
-
-        // Validar que el borde de la esfera no quede fuera
-        if (x - size < 0) this.x = x + size;
-        if (x + size > Gdx.graphics.getWidth()) this.x = x - size;
-
-        this.y = y;
-        if (y - size < 0) this.y = y + size;
-        if (y + size > Gdx.graphics.getHeight()) this.y = y - size;
-
-        spr.setPosition(this.x, this.y);
-
-        // Guardar velocidades originales
+        super(x, y, new Sprite(tx));
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
     }
+    
     
     @Override
     protected void move() {

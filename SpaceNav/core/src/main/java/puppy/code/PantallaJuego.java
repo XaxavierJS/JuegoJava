@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -17,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class PantallaJuego implements Screen {
 
+    private GameObjectFactory factory;
 	private SpaceNavigation game;
 	private OrthographicCamera camera;	
 	private SpriteBatch batch;
@@ -40,26 +40,30 @@ public class PantallaJuego implements Screen {
     private float powerUpSpawnInterval = 5f;
     
     public PantallaJuego(SpaceNavigation game, int ronda, int vidas, int score,  
-            int velXAsteroides, int velYAsteroides, int cantAsteroides) {
-        this.game = game;
-        this.ronda = ronda;
-        this.score = score;
-        this.velXAsteroides = velXAsteroides;
-        this.velYAsteroides = velYAsteroides;
-        this.cantAsteroides = cantAsteroides;
-        
-        batch = game.getBatch();
-        camera = new OrthographicCamera();    
-        camera.setToOrtho(false, 800, 640);
-        
-        initializeAudio();
-        
-        if (nave == null) {
-            createNave(vidas);
-        }
-        
-        crearAsteroides();
+                     int velXAsteroides, int velYAsteroides, int cantAsteroides) {
+    this.game = game;
+    this.ronda = ronda;
+    this.score = score;
+    this.velXAsteroides = velXAsteroides;
+    this.velYAsteroides = velYAsteroides;
+    this.cantAsteroides = cantAsteroides;
+
+    batch = game.getBatch();
+    camera = new OrthographicCamera();    
+    camera.setToOrtho(false, 800, 640);
+
+    this.factory = new SpaceObjectFactory(); // Inicializar la fábrica
+
+    initializeAudio();
+
+    if (nave == null) {
+        createNave(vidas, this.factory); // Crear la nave con la fábrica
     }
+
+    crearAsteroides();
+}
+
+
 
     private void initializeAudio() {
         // Configurar audio
@@ -73,25 +77,29 @@ public class PantallaJuego implements Screen {
         gameMusic.play();
     }
     
-    private void createNave(int vidas) {
-    	nave = Nave4.getInstance(Gdx.graphics.getWidth()/2-50, 30, new Texture(Gdx.files.internal("MainShip3.png")),
-                Gdx.audio.newSound(Gdx.files.internal("hurt.ogg")), 
-                new Texture(Gdx.files.internal("Rocket2.png")), 
-                Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3")), vidas);
+    private void createNave(int vidas, GameObjectFactory factory) {
+        nave = Nave4.getInstance(
+            Gdx.graphics.getWidth() / 2 - 50, 
+            30, 
+            new Texture(Gdx.files.internal("MainShip3.png")),
+            Gdx.audio.newSound(Gdx.files.internal("hurt.ogg")),
+            new Texture(Gdx.files.internal("Rocket2.png")),
+            Gdx.audio.newSound(Gdx.files.internal("pop-sound.mp3")), 
+            vidas,
+            factory
+        );
     }
+    
+    
+    
 
     private void crearAsteroides() {
-        // Crear asteroides iniciales
-        Random r = new Random();
         for (int i = 0; i < cantAsteroides; i++) {
-            Ball2 bb = new Ball2(r.nextInt((int)Gdx.graphics.getWidth()),
-                    50 + r.nextInt((int)Gdx.graphics.getHeight() - 50),
-                    20 + r.nextInt(10), velXAsteroides + r.nextInt(4), velYAsteroides + r.nextInt(4), 
-                    new Texture(Gdx.files.internal("aGreyMedium4.png")));    
-            balls1.add(bb);
-            balls2.add(bb);
+            Ball2 asteroid = (Ball2) factory.createAsteroid();
+            balls1.add(asteroid);
+            balls2.add(asteroid);
         }
-    }
+    }    
     
     public void dibujaEncabezado() {
         CharSequence str = "Vidas: "+nave.getVidas()+" Ronda: "+ronda;
@@ -141,12 +149,6 @@ public class PantallaJuego implements Screen {
         
         dibujaEncabezado();
         
-        nave.update();
-        // Verificar si se ha presionado la barra espaciadora para disparar
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            nave.disparar(this);  // Llama al método disparar de Nave4 y pasa la instancia actual de PantallaJuego
-        }
-        
         powerUpSpawnTimer -= delta;
         if (powerUpSpawnTimer <= 0) {
             spawnPowerUp();
@@ -157,9 +159,9 @@ public class PantallaJuego implements Screen {
         actualizarBalas();
         checkColisionNave();
         actualizarAsteroides();
-        		
         
-        nave.draw(batch);
+        
+        nave.draw(batch, this);
         
         if (nave.estaDestruido()) {
             if (score > game.getHighScore())
@@ -187,16 +189,11 @@ public class PantallaJuego implements Screen {
     }
 
     private void spawnPowerUp() {
-        Random r1 = new Random();
-        if (r1.nextFloat() < 0.1f) {
-            powerUps.add(new MagicStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
-        } else if (r1.nextFloat() < 0.7f) {
-            powerUps.add(new RedStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
-        } else if (r1.nextFloat() < 0.5f) {
-            powerUps.add(new BlueStar(r1.nextInt(Gdx.graphics.getWidth()), r1.nextInt(Gdx.graphics.getHeight())));
-        }
+        PowerUp powerUp = factory.createPowerUp();
+        powerUps.add(powerUp);
         powerUpSpawnTimer = powerUpSpawnInterval;
     }
+    
 
     private void actualizarBalas() {
         for (int i = 0; i < balas.size(); i++) {
@@ -235,14 +232,16 @@ public class PantallaJuego implements Screen {
     
     private void checkColisionNave() {
     	for (int i = 0; i < balls1.size(); i++) {
-            Ball2 b = balls1.get(i);
-            if (nave.checkCollision(b)) { // Verifica la colisión
-                nave.handleCollision(b); // Maneja la colisión
-                balls1.remove(i); // Elimina el asteroide de la lista
-                balls2.remove(i);
-                i--;
-            }
-        }
+    	    Ball2 b=balls1.get(i);
+    	    b.draw(batch);
+	          //perdió vida o game over
+              if (nave.checkCollision(b)) {
+	            //asteroide se destruye con el choque             
+            	 balls1.remove(i);
+            	 balls2.remove(i);
+            	 i--;
+          }   	  
+	    }
     }
 
     private void procesarPowerUps() {
@@ -256,7 +255,7 @@ public class PantallaJuego implements Screen {
                 break;
             }
         }
-    }
+    
     public void aplicarPowerUp(PowerUp powerUp) {
         powerUp.applyEffect(this);
     }
